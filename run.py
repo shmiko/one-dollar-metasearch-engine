@@ -1,4 +1,4 @@
-#!/Users/keshi.dai/.virtual_envs/flask/bin/python
+#!env/bin/python
 from app import app
 
 app.run(debug = True)
