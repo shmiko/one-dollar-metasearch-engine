@@ -1,0 +1,13 @@
+<html>
+<head>
+    <title>Search Results</title>
+</head>
+<body>
+    <ol>
+        {% for doc in results %}
+        <li><a href="{{ doc['link'] }}">{{ doc['title'] }}</a>
+            <p>{{doc['snippet']}}</p>
+        {% endfor %}
+    </ol>
+</body>
+</html>
