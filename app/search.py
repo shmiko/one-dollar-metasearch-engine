@@ -1,3 +1,4 @@
+import time
 import re
 import gevent
 from flask import render_template, request
@@ -13,8 +14,11 @@ def hello():
 def search():
     query = request.form['query']
     if len(query.strip()) > 0:
+        t0 = time.time()
         candidates = _fetch_results(query)
         results = _merge(candidates)
+        t1 = time.time()
+        print "Query Execution Time: %f" % (t1 - t0)
         return render_template('results.html',
                                results = results)
 
@@ -25,9 +29,8 @@ def _fetch_results(query):
             gevent.spawn(get_bing_results, query),
             gevent.spawn(get_yahoo_results, query)]
     gevent.joinall(jobs)
-    results = [job.get() for job in jobs]
-    return results
-
+    candidates = [job.get() for job in jobs]
+    return candidates
 
 def _format_query(query):
     query = re.sub(r'[^\w\s]', ' ', query).lower()
@@ -35,13 +38,14 @@ def _format_query(query):
     tokens = [token.strip() for token in tokens]
     return '+'.join(tokens)
 
-
 def _merge(candidates):
     retrieved_docs = candidates[0]
-    baseline_urls = set([doc['link'] for doc in retrieved_docs])
+    url_set = set([doc['link'] for doc in retrieved_docs])
 
     for docs in candidates[1:]:
         for doc in docs:
-            if doc['link'] not in baseline_urls:
+            if doc['link'] not in url_set:
                 retrieved_docs.append(doc)
+                url_set.add(doc['link'])
+
     return retrieved_docs
