@@ -1,5 +1,6 @@
-from flask import render_template, request
 import re
+import gevent
+from flask import render_template, request
 from app import app
 from app.engines import get_google_results, get_bing_results
 
@@ -11,17 +12,18 @@ def hello():
 def search():
     query = request.form['query']
     if len(query.strip()) > 0:
-        results = _fetch_results(query)
+        candidates = _fetch_results(query)
+        results = _merge(candidates)
         return render_template('results.html',
                                results = results)
 
 def _fetch_results(query):
     query = _format_query(query)
-    #TODO: fetch results in parallel
-    google_results = get_google_results(query)
-    bing_results =  get_bing_results(query)
-    final = _merge(google_results, bing_results)
-    return final
+    #TODO: use twisted or tornado
+    jobs = [gevent.spawn(get_google_results, query), gevent.spawn(get_bing_results, query)]
+    gevent.joinall(jobs)
+    results = [job.get() for job in jobs]
+    return results
 
 def _format_query(query):
     query = re.sub(r'[^\w\s]', ' ', query).lower()
@@ -29,11 +31,12 @@ def _format_query(query):
     tokens = [token.strip() for token in tokens]
     return '+'.join(tokens)
 
-def _merge(google_results, bing_results):
-    results = google_results
-    links = [google_result['link'] for google_result in google_results]
-    google_urls = set(links)
-    for bing_result in bing_results:
-        if bing_result['link'] not in google_urls:
-            results.append(bing_result)
-    return results
+def _merge(candidates):
+    retrieved_docs = candidates[0]
+    baseline_urls = set([doc['link'] for doc in retrieved_docs])
+
+    for docs in candidates[1:]:
+        for doc in docs:
+            if doc['link'] not in baseline_urls:
+                retrieved_docs.append(doc)
+    return retrieved_docs
