@@ -1,19 +1,22 @@
-from apiclient.errors import HttpError
-from httplib2 import HttpLib2Error
 import requests
-from apiclient.discovery import build
 from bs4 import BeautifulSoup
 
 def get_google_results(query):
-    try:
-        google = build("customsearch", "v1", developerKey="AIzaSyA4bQ5NdaPpoJBVuC-cZatqCCdTvc570QE")
-        res = google.cse().list(q=query, cx='017576662512468239146:omuauf_lfve').execute()
+    url = "http://www.google.com/search?q=%s" % query
+    res = requests.get(url)
+    if res.status_code == requests.codes.ok:
+        results = BeautifulSoup(res.text, 'lxml').find_all('li', {'class': 'g'})
 
-        docs = [{'link': _format_url(result['link']), 'title': result['title'], 'snippet': result['snippet']}
-                for result in res['items']]
+        docs = []
+        for result in results:
+            title = result.find('h3', {'class': 'r'}).getText()
+            link = _format_google_url(result.find('h3', {'class': 'r'}).find('a', href = True)['href'])
+            snippet_tag = result.find('span', {'class': 'st'})
+            snippet = '' if snippet_tag is None else snippet_tag.getText()
+            docs.append({'link': link, 'title': title, 'snippet': snippet})
         return docs
-    except (HttpError, HttpLib2Error, Exception):
-        return []
+    return []
+
 
 def get_bing_results(query):
     url = "http://www.bing.com/search?q=%s" % query
@@ -24,12 +27,13 @@ def get_bing_results(query):
         docs = []
         for result in results:
             title = result.find('div', {'class': 'sb_tlst'}).getText()
-            link = _format_url(result.find('div', {'class': 'sb_tlst'}).find('a', href=True)['href'])
+            link = _format_url(result.find('div', {'class': 'sb_tlst'}).find('a', href = True)['href'])
             snippet_tag = result.find('p')
             snippet = '' if snippet_tag is None else snippet_tag.getText()
             docs.append({'link': link, 'title': title, 'snippet': snippet})
         return docs
     return []
+
 
 def get_yahoo_results(query):
     url = "http://search.yahoo.com/search?p=%s" % query
@@ -40,12 +44,20 @@ def get_yahoo_results(query):
         docs = []
         for result in results:
             title = result.find('h3').getText()
-            link = _format_url(result.find('h3').find('a', href=True)['href'])
-            snippet_tag = result.find('div', {'class':'abstr'})
+            link = _format_url(result.find('h3').find('a', href = True)['href'])
+            snippet_tag = result.find('div', {'class': 'abstr'})
             snippet = '' if snippet_tag is None else snippet_tag.getText()
             docs.append({'link': link, 'title': title, 'snippet': snippet})
         return docs
     return []
 
+
 def _format_url(url):
     return url.strip().rstrip('/')
+
+
+def _format_google_url(url):
+    if url.startswith('/'):
+        return "http://www.google.com" + url
+    else:
+        return url.strip().rstrip('/')

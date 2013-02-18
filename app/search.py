@@ -22,6 +22,7 @@ def search():
         return render_template('results.html',
                                results = results)
 
+
 def _fetch_results(query):
     query = _format_query(query)
     #TODO: use twisted or tornado
@@ -32,11 +33,13 @@ def _fetch_results(query):
     candidates = [job.get() for job in jobs]
     return candidates
 
+
 def _format_query(query):
     query = re.sub(r'[^\w\s]', ' ', query).lower()
     tokens = re.split(r'\s+', query)
     tokens = [token.strip() for token in tokens]
     return '+'.join(tokens)
+
 
 def _merge(candidates):
     retrieved_docs = candidates[0]
