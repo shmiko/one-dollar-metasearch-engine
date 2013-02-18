@@ -15,17 +15,19 @@ def search():
         return render_template('results.html',
                                results = results)
 
+def _fetch_results(query):
+    query = _format_query(query)
+    #TODO: fetch results in parallel
+    google_results = get_google_results(query)
+    bing_results =  get_bing_results(query)
+    final = _merge(google_results, bing_results)
+    return final
+
 def _format_query(query):
     query = re.sub(r'[^\w\s]', ' ', query).lower()
     tokens = re.split(r'\s+', query)
     tokens = [token.strip() for token in tokens]
     return '+'.join(tokens)
-
-def _fetch_results(query):
-    google_results = get_google_results(query)
-    bing_results =  get_bing_results(query)
-    final = _merge(google_results, bing_results)
-    return final
 
 def _merge(google_results, bing_results):
     results = google_results
