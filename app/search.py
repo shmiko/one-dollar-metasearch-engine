@@ -1,6 +1,7 @@
+from Queue import Queue, Empty
+from threading import Thread
 import time
 import re
-import gevent
 from flask import render_template, request
 from app import app
 from app.engines import get_google_results, get_bing_results, get_yahoo_results
@@ -25,13 +26,15 @@ def search():
 
 def _fetch_results(query):
     query = _format_query(query)
-    #TODO: use twisted or tornado
-    jobs = [gevent.spawn(get_google_results, query),
-            gevent.spawn(get_bing_results, query),
-            gevent.spawn(get_yahoo_results, query)]
-    gevent.joinall(jobs)
-    candidates = [job.get() for job in jobs]
-    return candidates
+    q = Queue()
+
+    threads = [Thread(target = get_google_results, args=(query, q)),
+               Thread(target = get_bing_results, args=(query, q)),
+               Thread(target = get_yahoo_results, args=(query, q))]
+
+    for t in threads:
+        t.start()
+    return queue_get_all(q)
 
 
 def _format_query(query):
@@ -42,13 +45,24 @@ def _format_query(query):
 
 
 def _merge(candidates):
-    retrieved_docs = candidates[0]
-    url_set = set([doc['link'] for doc in retrieved_docs])
-
-    for docs in candidates[1:]:
-        for doc in docs:
-            if doc['link'] not in url_set:
-                retrieved_docs.append(doc)
-                url_set.add(doc['link'])
+    retrieved_docs = []
+    url_set = set()
+    for doc in candidates:
+        if doc['link'] not in url_set:
+            retrieved_docs.append(doc)
+            url_set.add(doc['link'])
 
     return retrieved_docs
+
+def queue_get_all(q):
+    items = []
+    max_cnt = 20
+    cnt = 0
+    while cnt < max_cnt:
+        try:
+            items.append(q.get(True, 1))
+            cnt += 1
+        except Empty:
+            break
+
+    return items

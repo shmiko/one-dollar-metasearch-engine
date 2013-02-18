@@ -5,7 +5,7 @@
 <body>
     <ol>
         {% for doc in results %}
-        <li><a href="{{ doc['link'] }}">{{ doc['title'] }}</a>
+        <li><a href="{{ doc['link'] }}">{{ doc['title'] }} </a> <small>{{ doc['source'] }}</small>
             <p>{{doc['snippet']}}</p>
         {% endfor %}
     </ol>
