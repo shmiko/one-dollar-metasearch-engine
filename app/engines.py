@@ -21,7 +21,7 @@ def get_bing_results(query):
         docs = []
         for result in results:
             title = result.find('div', {'class': 'sb_tlst'}).getText()
-            link = result.find('div', {'class': 'sb_meta'}).find('cite').getText()
+            link = result.find('div', {'class': 'sb_tlst'}).find('a', href=True)['href']
             snippet_tag = result.find('p')
             snippet = '' if snippet_tag is None else snippet_tag.getText()
             docs.append({'link': link, 'title': title, 'snippet': snippet})
