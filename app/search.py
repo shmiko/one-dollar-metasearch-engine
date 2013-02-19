@@ -28,9 +28,9 @@ def _fetch_results(query):
     query = _format_query(query)
     q = Queue()
 
-    threads = [Thread(target = get_google_results, args=(query, q)),
-               Thread(target = get_bing_results, args=(query, q)),
-               Thread(target = get_yahoo_results, args=(query, q))]
+    threads = [Thread(target = get_google_results, args = (query, q)),
+               Thread(target = get_bing_results, args = (query, q)),
+               Thread(target = get_yahoo_results, args = (query, q))]
 
     for t in threads:
         t.start()
@@ -51,8 +51,8 @@ def _merge(candidates):
         if doc['link'] not in url_set:
             retrieved_docs.append(doc)
             url_set.add(doc['link'])
-
     return retrieved_docs
+
 
 def queue_get_all(q):
     items = []
@@ -64,5 +64,4 @@ def queue_get_all(q):
             cnt += 1
         except Empty:
             break
-
     return items
