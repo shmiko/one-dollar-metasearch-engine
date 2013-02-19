@@ -2,7 +2,7 @@ from Queue import Queue, Empty
 from threading import Thread
 import time
 import re
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for
 from app import app
 from app.engines import get_google_results, get_bing_results, get_yahoo_results
 
@@ -22,6 +22,7 @@ def search():
         print "Query Execution Time: %f" % (t1 - t0)
         return render_template('results.html',
                                results = results)
+    return redirect(url_for('hello'))
 
 
 def _fetch_results(query):
