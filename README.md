@@ -4,7 +4,7 @@ one-dollar-metasearch-engine
 A simple metasearch engine based on flask
 
 ## How to run:
-2. virtualenv env
+1. virtualenv env
+2. . env/bin/activate
 3. pip install -r requirements.txt
-4. . env/bin/activate
-5. ./run.py
+4. ./run.py
