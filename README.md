@@ -10,3 +10,6 @@ env/bin/activate
 pip install -r requirements.txt
 /run.py
 ```
+
+## Demo
+http://daikeshi-metasearch.herokuapp.com/
