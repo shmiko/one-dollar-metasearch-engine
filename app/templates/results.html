@@ -1,13 +1,23 @@
 <html>
 <head>
+    <link href="../static/styles.css" rel="stylesheet" type="text/css">
     <title>Search Results</title>
 </head>
 <body>
-    <ol>
-        {% for doc in results %}
-        <li><a href="{{ doc['link'] }}">{{ doc['title'] }} </a> <small>{{ doc['source'] }}</small>
-            <p>{{doc['snippet']}}</p>
-        {% endfor %}
-    </ol>
+<form class="result-search-wrapper cf" action="{{ url_for('search') }}" method=post>
+    <input type="text" size=50 name=query placeholder="Search here..." required="">
+    <button type="submit">Search</button>
+</form>
+<ol>
+{% for doc in results %}
+<div class="result-wrapper">
+    <ui>
+    <a href="{{ doc['link'] }}">{{ doc['title'] }}</a>
+    <small>{{ doc['source'] }}</small>
+    <p>{{doc['snippet']}}</p>
+    </ui>
+</div>
+{% endfor %}
+</ol>
 </body>
 </html>
