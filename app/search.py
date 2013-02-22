@@ -1,4 +1,5 @@
 from Queue import Queue, Empty
+from collections import defaultdict
 from threading import Thread
 import time
 import re
@@ -24,7 +25,6 @@ def search():
                                results = results)
     return redirect(url_for('hello'))
 
-
 def _fetch_results(query):
     query = _format_query(query)
     q = Queue()
@@ -35,6 +35,7 @@ def _fetch_results(query):
 
     for t in threads:
         t.start()
+        t.join()
     return queue_get_all(q)
 
 
@@ -47,21 +48,25 @@ def _format_query(query):
 
 def _merge(candidates):
     retrieved_docs = []
-    url_set = set()
+#    url_set = set()
     for doc in candidates:
-        if doc['link'] not in url_set:
-            retrieved_docs.append(doc)
-            url_set.add(doc['link'])
-    return retrieved_docs
+#        if doc['link'] not in url_set:
+        retrieved_docs.append(doc)
+#            url_set.add(doc['link'])
+
+    results = defaultdict(list)
+    for doc in retrieved_docs:
+        results[doc['source']].append(doc)
+    return results
 
 
 def queue_get_all(q):
     items = []
-    max_cnt = 20
+    max_cnt = 30
     cnt = 0
     while cnt < max_cnt:
         try:
-            items.append(q.get(True, 1))
+            items.append(q.get(True, 2))
             cnt += 1
         except Empty:
             break

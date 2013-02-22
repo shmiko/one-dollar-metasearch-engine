@@ -12,7 +12,7 @@ def get_google_results(query, queue):
             link = _format_google_url(result.find('h3', {'class': 'r'}).find('a', href = True)['href'])
             snippet_tag = result.find('span', {'class': 'st'})
             snippet = '' if snippet_tag is None else snippet_tag.getText()
-            queue.put({'link': link, 'title': title, 'snippet': snippet, 'source': 'Google'})
+            queue.put({'link': link, 'title': title, 'snippet': snippet, 'source': 'google'})
 
 
 def get_bing_results(query, queue):
@@ -26,7 +26,7 @@ def get_bing_results(query, queue):
             link = _format_url(result.find('div', {'class': 'sb_tlst'}).find('a', href = True)['href'])
             snippet_tag = result.find('p')
             snippet = '' if snippet_tag is None else snippet_tag.getText()
-            queue.put({'link': link, 'title': title, 'snippet': snippet, 'source': 'Bing'})
+            queue.put({'link': link, 'title': title, 'snippet': snippet, 'source': 'bing'})
 
 
 def get_yahoo_results(query, queue):
@@ -40,7 +40,7 @@ def get_yahoo_results(query, queue):
             link = _format_url(result.find('h3').find('a', href = True)['href'])
             snippet_tag = result.find('div', {'class': 'abstr'})
             snippet = '' if snippet_tag is None else snippet_tag.getText()
-            queue.put({'link': link, 'title': title, 'snippet': snippet, 'source': 'Yahoo'})
+            queue.put({'link': link, 'title': title, 'snippet': snippet, 'source': 'yahoo'})
 
 
 def _format_url(url):
