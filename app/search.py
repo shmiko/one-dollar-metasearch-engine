@@ -2,6 +2,7 @@ from Queue import Queue, Empty
 from collections import defaultdict
 from threading import Thread
 import time
+from HTMLParser import HTMLParser
 import re
 from flask import render_template, request, redirect, url_for
 from app import app

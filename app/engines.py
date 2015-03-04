@@ -1,12 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
+from HTMLParser import HTMLParser
 
 def get_google_results(query, queue):
     url = "http://www.google.com/search?q=%s" % query
     res = requests.get(url)
     if res.status_code == requests.codes.ok:
         results = BeautifulSoup(res.text, 'lxml').find_all('li', {'class': 'g'})
-
+        print("results from google", results)
         for result in results:
             title = result.find('h3', {'class': 'r'}).getText()
             link = _format_google_url(result.find('h3', {'class': 'r'}).find('a', href = True)['href'])
@@ -34,7 +35,7 @@ def get_yahoo_results(query, queue):
     res = requests.get(url)
     if res.status_code == requests.codes.ok:
         results = BeautifulSoup(res.text, 'lxml').find_all('div', {'class': 'res'})
-
+        print("results from yahoo", results)
         for result in results:
             title = result.find('h3').getText()
             link = _format_url(result.find('h3').find('a', href = True)['href'])
