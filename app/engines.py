@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from HTMLParser import HTMLParser
+import urllib,urllib2
 
 def get_google_results(query, queue):
     url = "http://www.google.com/search?q=%s" % query
@@ -19,9 +20,22 @@ def get_google_results(query, queue):
 def get_bing_results(query, queue):
     url = "http://www.bing.com/search?q=%s" % query
     res = requests.get(url)
+    print(res)
+        
     if res.status_code == requests.codes.ok:
-        results = BeautifulSoup(res.text, 'lxml').find("div", {"id": "results"}).find_all('li', {'class': 'sa_wr'})
-
+        address = "http://www.bing.com/search?q=%s" % query
+        request = urllib2.Request(address, None, {'User-Agent':'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'} )
+        urlfile = urllib2.urlopen(request)
+        page = urlfile.read(200000)
+        urlfile.close()
+     
+        soup = BeautifulSoup(page)
+        links =   [x.find('a')['href'] for x in soup.find('div', id='results').findAll('h3')]
+        #return links
+        
+        results = BeautifulSoup(res.text, 'lxml').find_all('li', {'class': 'b_algo'})
+        #.find_all('li', {'class': 'b_'})
+        print("results from bing", res.text, results)
         for result in results:
             title = result.find('div', {'class': 'sb_tlst'}).getText()
             link = _format_url(result.find('div', {'class': 'sb_tlst'}).find('a', href = True)['href'])
