@@ -13,6 +13,7 @@ def hello():
     return render_template('search.html')
 
 
+
 @app.route('/search', methods = ['POST'])
 def search():
     query = request.form['query']
