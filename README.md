@@ -1,4 +1,4 @@
-one-dollar-metasearch-engine
+missy-go-metasearch-engine
 =====================
 
 A simple metasearch engine based on flask
